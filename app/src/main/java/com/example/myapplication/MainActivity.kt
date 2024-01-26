@@ -4,43 +4,52 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import java.net.InetAddress
+import java.net.Socket
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyApplicationTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier,
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    Button(
+                        onClick = {
+                            enviar()
+                        }
+                    ) {
+                        Text("Enviar mensaje")
+                    }
                 }
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun enviar() {
+        Thread {
+            val host = "192.168.1.55"
+            val puerto = 6000
+            val mensaje = "Adios"
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyApplicationTheme {
-        Greeting("Android")
+            try {
+                val cliente = Socket(host, puerto)
+                val outputStream = cliente.getOutputStream()
+                outputStream.write(mensaje.toByteArray())
+                outputStream.flush()
+
+                cliente.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }.start()
     }
 }
